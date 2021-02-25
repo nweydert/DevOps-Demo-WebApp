@@ -1,37 +1,33 @@
 pipeline {
   agent any
   parameters{
-    booleanParam(name:"executeStageBuild", defaultValue: true, description:"")
+    booleanParam(name:"executeStageBuildWebApp", defaultValue: true, description:"")
     
   }
   tools{
     maven "Maven3.6.3"
   }
   environment{
-    DEMO = true
-    BLAZEMETER__CREDENTIALS = credentials('Blazemeter')
-    TOMCAT__CREDENTIALS = credentials('tomcat')
-    SLACK__CREDENTIALS = credentials('slack-alerts')
-    DOCKER__CREDENTIALS = credentials('docker')
+    //BLAZEMETER__CREDENTIALS = credentials('Blazemeter')
+    //TOMCAT__CREDENTIALS = credentials('tomcat')
+    //SLACK__CREDENTIALS = credentials('slack-alerts')
+    //DOCKER__CREDENTIALS = credentials('docker')
   }
   stages {
-    stage("build"){
+    stage("Build Web App"){
       when{
         expression{
-          params.executeStageBuild
+          params.executeStageBuildWebApp
         }
       }
       steps{
-        echo "Building the application..."
-        sh "mvn install"
+        echo "Building the Web Application..."
+        sh "mvn compile"
+        echo "'Build Web App' - completed successfully."
       }
     }
+    /*
     stage("BlazeMeter"){
-      when{
-        expression{
-          DEMO == false
-        }
-      }
       steps{
         echo "BlazeMeter execution..."
         withCredentials([
@@ -41,6 +37,7 @@ pipeline {
       }
     }
   }
+  */
   post{
     always{
       // Message at the end
