@@ -1,5 +1,9 @@
 pipeline {
   agent any
+  parameters{
+    booleanParam(name:"executeStageBuild", defaultValue: true, description:"")
+    
+  }
   tools{
     maven "Maven3.6.3"
   }
@@ -12,6 +16,11 @@ pipeline {
   }
   stages {
     stage("build"){
+      when{
+        expression{
+          params.executeStageBuild
+        }
+      }
       steps{
         echo "Building the application..."
         sh "mvn compile"
