@@ -40,7 +40,7 @@ pipeline {
       }
       post{
         success{
-          deploy adapters: [tomcat8(url: 'http://172.31.35.77:8080/', credentialsId: ${env.TOMCAT_CREDENTIALS})], war: '**/*.war', contextPath: '/QAWebapp'
+          deploy adapters: [tomcat8(url: 'http://172.31.35.77:8080/', credentialsId: "tomcat")], war: '**/*.war', contextPath: '/QAWebapp'
           echo "'Deploy to QA' - completed successfully."
         }
       }
