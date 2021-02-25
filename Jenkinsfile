@@ -1,19 +1,19 @@
 pipeline {
   agent any
   parameters{
-    booleanParam(name:"executeStageBuildWebApp", defaultValue: true, description:"")
-    booleanParam(name:"executeStageDeployToQA", defaultValue: true, description:"")
+    booleanParam(name:"executeStageBuildWebApp", defaultValue: false, description:"")
+    booleanParam(name:"executeStageDeployToQA", defaultValue: false, description:"")
+    booleanParam(name:"executeStageStoreArtifacts", defaultValue: true, description:"")
   }
   tools{
     maven "Maven3.6.3"
   }
   
-  environment{
+  //environment{
     //BLAZEMETER_CREDENTIALS = credentials('Blazemeter')
-    TOMCAT_CREDENTIALS = credentials('tomcat')
     //SLACK_CREDENTIALS = credentials('slack-alerts')
     //DOCKER_CREDENTIALS = credentials('docker')
-  }
+  //}
   
   stages {
     stage("Build Web App"){
@@ -43,6 +43,30 @@ pipeline {
           deploy adapters: [tomcat8(url: 'http://172.31.35.77:8080/', credentialsId: "tomcat")], war: '**/*.war', contextPath: '/QAWebapp'
           echo "'Deploy to QA' - completed successfully."
         }
+      }
+    }
+    stage("Store Artifacts"){
+      when{
+        expression{
+          params.executeStageStoreArtifacts
+        }
+      }
+      steps{
+        echo "Storing Artifacts..."
+        def server = Artifactory.server "https://nweydertartifactory.jfrog.io/artifactory"
+        def buildInfo = Artifactory.newBuildInfo()
+        buildInfo.env.capture = true
+        def rtMaven = Artifactory.newMavenBuild()
+        rtMaven.tool = MAVEN_TOOL // Tool name from Jenkins configuration
+        rtMaven.opts = "-Denv=dev"
+        rtMaven.deployer releaseRepo:'libs-release-local', snapshotRepo:'libs-snapshot-local', server: server
+        rtMaven.resolver releaseRepo:'libs-release', snapshotRepo:'libs-snapshot', server: server
+
+        rtMaven.run pom: 'pom.xml', goals: 'package', buildInfo: buildInfo
+
+        buildInfo.retention maxBuilds: 10, maxDays: 7, deleteBuildArtifacts: true
+        // Publish build info.
+        server.publishBuildInfo buildInfo
       }
     }
     /*
