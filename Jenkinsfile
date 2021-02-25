@@ -7,14 +7,14 @@ pipeline {
   tools{
     maven "Maven3.6.3"
   }
-  /*
+  
   environment{
     //BLAZEMETER__CREDENTIALS = credentials('Blazemeter')
-    //TOMCAT__CREDENTIALS = credentials('tomcat')
+    TOMCAT__CREDENTIALS = credentials('tomcat')
     //SLACK__CREDENTIALS = credentials('slack-alerts')
     //DOCKER__CREDENTIALS = credentials('docker')
   }
-  */
+  
   stages {
     stage("Build Web App"){
       when{
@@ -37,6 +37,10 @@ pipeline {
       steps{
         echo "Deploying the Web Application to QA..."
         sh "mvn package"
+        deploy adapters: [tomcat8(url: 'http://172.31.35.77:8080/', 
+                                  credentialsId: ${TOMCAT__CREDENTIALS})], 
+                     war: '**/*.war',
+                     contextPath: '/QAWebapp'
         echo "'Deploy to QA' - completed successfully."
       }
     }
