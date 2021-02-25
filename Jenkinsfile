@@ -36,8 +36,8 @@ pipeline {
         }
       }
     }
+    */
   }
-  */
   post{
     always{
       // Message at the end
