@@ -7,12 +7,14 @@ pipeline {
   tools{
     maven "Maven3.6.3"
   }
+  /*
   environment{
     //BLAZEMETER__CREDENTIALS = credentials('Blazemeter')
     //TOMCAT__CREDENTIALS = credentials('tomcat')
     //SLACK__CREDENTIALS = credentials('slack-alerts')
     //DOCKER__CREDENTIALS = credentials('docker')
   }
+  */
   stages {
     stage("Build Web App"){
       when{
