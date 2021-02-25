@@ -37,6 +37,8 @@ pipeline {
       steps{
         echo "Deploying the Web Application to QA..."
         sh "mvn package"
+      }
+      post{
         deploy adapters: [tomcat8(url: 'http://172.31.35.77:8080/', 
                                   credentialsId: ${TOMCAT__CREDENTIALS})], 
                      war: '**/*.war',
