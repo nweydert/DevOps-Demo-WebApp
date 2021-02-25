@@ -23,7 +23,7 @@ pipeline {
       }
       steps{
         echo "Building the application..."
-        sh "mvn compile"
+        sh "mvn install"
       }
     }
     stage("BlazeMeter"){
