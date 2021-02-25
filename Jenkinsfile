@@ -36,7 +36,7 @@ pipeline {
       }
       steps{
         echo "Deploying the Web Application to QA..."
-        sh "mvn compile"
+        sh "mvn package"
         echo "'Deploy to QA' - completed successfully."
       }
     }
