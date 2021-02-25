@@ -39,11 +39,10 @@ pipeline {
         sh "mvn package"
       }
       post{
-        deploy adapters: [tomcat8(url: 'http://172.31.35.77:8080/', 
-                                  credentialsId: ${TOMCAT__CREDENTIALS})], 
-                     war: '**/*.war',
-                     contextPath: '/QAWebapp'
-        echo "'Deploy to QA' - completed successfully."
+        success{
+          deploy adapters: [tomcat8(url: 'http://172.31.35.77:8080/', credentialsId: ${TOMCAT__CREDENTIALS})], war: '**/*.war', contextPath: '/QAWebapp'
+          echo "'Deploy to QA' - completed successfully."
+        }
       }
     }
     /*
