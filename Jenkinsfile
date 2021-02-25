@@ -2,7 +2,7 @@ pipeline {
   agent any
   parameters{
     booleanParam(name:"executeStageBuildWebApp", defaultValue: true, description:"")
-    
+    booleanParam(name:"executeStageDeployToQA", defaultValue: true, description:"")
   }
   tools{
     maven "Maven3.6.3"
@@ -26,6 +26,18 @@ pipeline {
         echo "Building the Web Application..."
         sh "mvn compile"
         echo "'Build Web App' - completed successfully."
+      }
+    }
+    stage("Deploy to QA"){
+      when{
+        expression{
+          params.executeStageDeployToQA
+        }
+      }
+      steps{
+        echo "Deploying the Web Application to QA..."
+        sh "mvn compile"
+        echo "'Deploy to QA' - completed successfully."
       }
     }
     /*
