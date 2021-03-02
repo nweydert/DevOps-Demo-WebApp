@@ -1,9 +1,9 @@
 pipeline {
   agent any
   parameters{
-    booleanParam(name:"executeStageBuildWebApp", defaultValue: false, description:"")
+    booleanParam(name:"executeStageBuildWebApp", defaultValue: true, description:"")
     booleanParam(name:"executeStageDeployToQA", defaultValue: false, description:"")
-    booleanParam(name:"executeStageStoreArtifacts", defaultValue: true, description:"")
+    booleanParam(name:"executeStageStoreArtifacts", defaultValue: false, description:"")
   }
   tools{
     maven "Maven3.6.3"
@@ -26,6 +26,12 @@ pipeline {
         echo "Building the Web Application..."
         sh "mvn compile"
         echo "'Build Web App' - completed successfully."
+      }
+      post{
+        success{
+          slackSend (color: "#FF0000", message: "'Build Web App' - completed successfully.")
+          echo "Notification sent to Slack"
+        }
       }
     }
     stage("Deploy to QA"){
@@ -53,20 +59,18 @@ pipeline {
       }
       steps{
         echo "Storing Artifacts..."
-        def server = Artifactory.server "https://nweydertartifactory.jfrog.io/artifactory"
-        def buildInfo = Artifactory.newBuildInfo()
-        buildInfo.env.capture = true
-        def rtMaven = Artifactory.newMavenBuild()
-        rtMaven.tool = MAVEN_TOOL // Tool name from Jenkins configuration
-        rtMaven.opts = "-Denv=dev"
-        rtMaven.deployer releaseRepo:'libs-release-local', snapshotRepo:'libs-snapshot-local', server: server
-        rtMaven.resolver releaseRepo:'libs-release', snapshotRepo:'libs-snapshot', server: server
-
-        rtMaven.run pom: 'pom.xml', goals: 'package', buildInfo: buildInfo
-
-        buildInfo.retention maxBuilds: 10, maxDays: 7, deleteBuildArtifacts: true
-        // Publish build info.
-        server.publishBuildInfo buildInfo
+        script {
+          def server = Artifactory.server 'Artifactory'
+          def rtMaven = Artifactory.newMavenBuild()
+          def buildInfo
+          rtMaven.tool = 'Maven3.6.3'
+          rtMaven.deployer releaseRepo: 'libs-release-local', snapshotRepo: 'libs-snapshot-local', server: server
+          rtMaven.resolver releaseRepo: 'libs-release', snapshotRepo: 'libs-snapshot', server: server
+          buildInfo = Artifactory.newBuildInfo()
+          buildInfo.env.capture = true
+          rtMaven.run pom: 'pom.xml', goals: 'package', buildInfo: buildInfo
+          server.publishBuildInfo buildInfo
+        }
       }
     }
     /*
