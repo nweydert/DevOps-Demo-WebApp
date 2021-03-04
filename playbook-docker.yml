@@ -1,0 +1,25 @@
+---
+- hosts: node1
+  become: yes
+  tasks:
+  - name: Install apt
+    apt: name=aptitude state=latest update_cache=yes force_apt_get=yes
+
+  - name : Install system package
+    apt: name={{ item }} state=latest update_cache=yes
+    loop: [ 'apt-transport-https', 'ca-certificates', 'curl', 'software-properti
+es-common' ]
+
+  - name: Add Docker GPG
+    apt_key:
+     url: https://download.docker.com/linux/ubuntu/gpg
+     state: present
+
+  - name: Add Docker Repository
+    apt_repository:
+     repo: deb https://download.docker.com/linux/ubuntu bionic stable
+     state: present
+
+  - name: Install docker-ce
+    apt: update_cache=yes name=docker-ce state=latest
+    
